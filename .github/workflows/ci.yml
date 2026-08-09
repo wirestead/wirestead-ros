@@ -13,10 +13,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out Wirestead ROS
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Check out Wirestead main
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           repository: wirestead/wirestead
           ref: main
@@ -46,6 +46,10 @@ jobs:
         shell: bash
         run: |
           source /opt/ros/jazzy/setup.bash
+          if [[ ! -f /etc/ros/rosdep/sources.list.d/20-default.list ]]; then
+            sudo rosdep init
+          fi
+          rosdep update --rosdistro jazzy
           rosdep install --from-paths wirestead_ros --ignore-src \
             --rosdistro jazzy --skip-keys wirestead -r -y
 
