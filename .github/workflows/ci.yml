@@ -1,0 +1,73 @@
+name: ROS 2 CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  jazzy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out Wirestead ROS
+        uses: actions/checkout@v4
+
+      - name: Check out Wirestead main
+        uses: actions/checkout@v4
+        with:
+          repository: wirestead/wirestead
+          ref: main
+          path: _deps/wirestead
+
+      - name: Set up ROS 2 Jazzy
+        uses: ros-tooling/setup-ros@v0.7
+        with:
+          required-ros-distributions: jazzy
+
+      - name: Install Wirestead dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libboost-system-dev libspdlog-dev
+
+      - name: Build and install Wirestead core
+        run: |
+          cmake -S _deps/wirestead -B "${RUNNER_TEMP}/wirestead-build" \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_INSTALL_PREFIX="${RUNNER_TEMP}/wirestead-install" \
+            -DWIRESTEAD_BUILD_STATIC=OFF \
+            -DWIRESTEAD_BUILD_TESTS=OFF
+          cmake --build "${RUNNER_TEMP}/wirestead-build" -j2
+          cmake --install "${RUNNER_TEMP}/wirestead-build"
+
+      - name: Install ROS dependencies
+        shell: bash
+        run: |
+          source /opt/ros/jazzy/setup.bash
+          rosdep install --from-paths wirestead_ros --ignore-src \
+            --rosdistro jazzy --skip-keys wirestead -r -y
+
+      - name: Build Wirestead ROS
+        shell: bash
+        run: |
+          source /opt/ros/jazzy/setup.bash
+          export CMAKE_PREFIX_PATH="${RUNNER_TEMP}/wirestead-install:${CMAKE_PREFIX_PATH}"
+          colcon --log-base "${RUNNER_TEMP}/log" build \
+            --base-paths wirestead_ros \
+            --build-base "${RUNNER_TEMP}/ros-build" \
+            --install-base "${RUNNER_TEMP}/ros-install" \
+            --event-handlers console_direct+
+
+      - name: Test Wirestead ROS
+        shell: bash
+        run: |
+          source /opt/ros/jazzy/setup.bash
+          export CMAKE_PREFIX_PATH="${RUNNER_TEMP}/wirestead-install:${CMAKE_PREFIX_PATH}"
+          colcon --log-base "${RUNNER_TEMP}/log" test \
+            --base-paths wirestead_ros \
+            --build-base "${RUNNER_TEMP}/ros-build" \
+            --install-base "${RUNNER_TEMP}/ros-install" \
+            --event-handlers console_direct+
+          colcon test-result --test-result-base "${RUNNER_TEMP}/ros-build" --verbose
