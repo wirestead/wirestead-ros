@@ -52,6 +52,9 @@ The `--skip-keys wirestead` exception is temporary. Remove it when Wirestead is
 available through rosdistro. Release manifests must replace `main` with an
 immutable core tag before a public release.
 
+The completed implementation, validation results, and remaining registration
+work are tracked in [Implementation Status](docs/implementation_status.md).
+
 ## Supported ROS distributions
 
 - ROS 2 Jazzy on Ubuntu 24.04 is the initial development target.

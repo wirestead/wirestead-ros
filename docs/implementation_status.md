@@ -1,0 +1,74 @@
+# Implementation Status
+
+Status as of 2026-08-09.
+
+## Completed
+
+### Wirestead core
+
+- Added the ROS package manifest for package `wirestead`.
+- Recorded the ROS 2 integration architecture, naming, driver usage, and
+  release analysis in `docs/ros2_support_analysis.md`.
+- Published the change as
+  [wirestead/wirestead#586](https://github.com/wirestead/wirestead/pull/586).
+- Kept the pull request as a draft. The change is not merged into core `main`.
+
+### Wirestead ROS
+
+- Created the `wirestead_ros` ament package at version `0.1.0`.
+- Added `CallbackGate` to prevent driver callbacks from outliving their ROS
+  owner during shutdown.
+- Added installable CMake targets, package exports, tests, source-workspace
+  metadata, and Jazzy CI.
+- Published the initial implementation to the `wirestead-ros` `main` branch.
+- Made the development CI build and install Wirestead core `main` before the
+  ROS package. The unresolved `wirestead` rosdep key is skipped temporarily.
+
+## Validation
+
+- Wirestead core Linux, macOS, and Windows builds passed.
+- Core unit, integration, end-to-end, memory-safety, formatting, install and
+  consume, and CodeQL checks passed on pull request 586.
+- `wirestead_ros` produced 28 test results with no failures locally.
+- An installed downstream consumer found and linked
+  `wirestead_ros::wirestead_ros` successfully.
+- The public Jazzy workflow completed successfully in
+  [wirestead-ros Actions run 31307946464](https://github.com/wirestead/wirestead-ros/actions/runs/31307946464).
+
+## Current Source-Workspace Use
+
+Until a released Wirestead core package is available through rosdep, clone
+this repository and import `wirestead_ros.repos`. That manifest follows core
+`main`; install core with plain CMake, skip the unresolved `wirestead` rosdep
+key, and then build `wirestead_ros` with colcon. The exact commands are in the
+repository [README](../README.md#source-workspace).
+
+Real device drivers should depend on `wirestead_ros`, link Wirestead directly,
+and publish semantic standard or device-specific ROS messages. An optional raw
+byte bridge is not part of the current package and must not add an extra DDS hop
+to production driver data paths.
+
+## Not Yet Included
+
+- Merge of the core draft pull request.
+- A core release newer than v0.9.3 containing `package.xml`.
+- Immutable core tag selection in `wirestead_ros.repos`.
+- Bloom-generated `wirestead-release` and `wirestead-ros-release`
+  repositories.
+- Registration in `ros/rosdistro` and ROS build-farm binary packages.
+- Planned `wirestead_msgs` and `wirestead_bridge` packages.
+
+## Registration Order
+
+1. Review and merge core pull request 586.
+2. Include the core manifest in the next naturally scheduled Wirestead release;
+   do not recreate or modify v0.9.3.
+3. Pin `wirestead_ros.repos` to that immutable core tag and repeat clean Jazzy
+   source and installed-consumer validation.
+4. Release the core package `wirestead` with Bloom and verify
+   `ros-jazzy-wirestead` in `ros-testing`.
+5. Release the integration package `wirestead_ros` and verify
+   `ros-jazzy-wirestead-ros` in `ros-testing`.
+
+The complete Bloom commands, repository names, and naming rationale are in
+[ROS Release Plan](releasing.md).
