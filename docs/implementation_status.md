@@ -18,6 +18,11 @@ Status as of 2026-08-09.
 - Created the `wirestead_ros` ament package at version `0.1.0`.
 - Added `CallbackGate` to prevent driver callbacks from outliving their ROS
   owner during shutdown.
+- Added `report_channel_stats()`, mapping a channel's `RuntimeStats` onto a
+  `diagnostic_updater` status. The level reflects only present state -
+  disconnected is ERROR, active backpressure is WARN - because the drop and
+  failure counters are cumulative and would otherwise latch a warning for the
+  rest of the run over a single old drop.
 - Added installable CMake targets, package exports, tests, source-workspace
   metadata, and Jazzy CI.
 - Published the initial implementation to the `wirestead-ros` `main` branch.
@@ -29,7 +34,7 @@ Status as of 2026-08-09.
 - Wirestead core Linux, macOS, and Windows builds passed.
 - Core unit, integration, end-to-end, memory-safety, formatting, install and
   consume, and CodeQL checks passed on pull request 586.
-- `wirestead_ros` produced 28 test results with no failures locally.
+- `wirestead_ros` produced 45 test results with no failures locally.
 - An installed downstream consumer found and linked
   `wirestead_ros::wirestead_ros` successfully.
 - The public Jazzy workflow completed successfully in
