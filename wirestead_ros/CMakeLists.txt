@@ -6,8 +6,10 @@ project(wirestead_ros VERSION 0.1.0 LANGUAGES CXX)
 
 find_package(ament_cmake REQUIRED)
 find_package(wirestead CONFIG REQUIRED)
+find_package(diagnostic_msgs REQUIRED)
+find_package(diagnostic_updater REQUIRED)
 
-add_library(${PROJECT_NAME} SHARED src/callback_gate.cpp)
+add_library(${PROJECT_NAME} SHARED src/callback_gate.cpp src/diagnostics.cpp)
 add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_20)
 target_include_directories(
@@ -16,7 +18,13 @@ target_include_directories(
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>
 )
-target_link_libraries(${PROJECT_NAME} PUBLIC wirestead::wirestead)
+target_link_libraries(
+  ${PROJECT_NAME}
+  PUBLIC
+    wirestead::wirestead
+    ${diagnostic_msgs_TARGETS}
+    diagnostic_updater::diagnostic_updater
+)
 target_compile_definitions(${PROJECT_NAME} PRIVATE WIRESTEAD_ROS_BUILDING_LIBRARY)
 
 install(
@@ -39,8 +47,11 @@ if(BUILD_TESTING)
 
   ament_add_gtest(test_callback_gate test/test_callback_gate.cpp)
   target_link_libraries(test_callback_gate ${PROJECT_NAME})
+
+  ament_add_gtest(test_diagnostics test/test_diagnostics.cpp)
+  target_link_libraries(test_diagnostics ${PROJECT_NAME})
 endif()
 
 ament_export_targets(export_${PROJECT_NAME} HAS_LIBRARY_TARGET)
-ament_export_dependencies(wirestead)
+ament_export_dependencies(wirestead diagnostic_msgs diagnostic_updater)
 ament_package()
