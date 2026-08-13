@@ -23,6 +23,12 @@ Status as of 2026-08-09.
   disconnected is ERROR, active backpressure is WARN - because the drop and
   failure counters are cumulative and would otherwise latch a warning for the
   rest of the run over a single old drop.
+- Added `serial_line_driver`, the reference driver for third-party authors: a
+  lifecycle node that parses a line protocol on the callback-scoped view,
+  stamps from `MessageContext::received_at()`, orders shutdown through
+  `CallbackGate`, and reports the link on `/diagnostics`. It publishes a
+  semantic `sensor_msgs/Temperature` rather than raw bytes, so there is no
+  extra DDS hop in the data path.
 - Added installable CMake targets, package exports, tests, source-workspace
   metadata, and Jazzy CI.
 - Published the initial implementation to the `wirestead-ros` `main` branch.
@@ -34,7 +40,7 @@ Status as of 2026-08-09.
 - Wirestead core Linux, macOS, and Windows builds passed.
 - Core unit, integration, end-to-end, memory-safety, formatting, install and
   consume, and CodeQL checks passed on pull request 586.
-- `wirestead_ros` produced 45 test results with no failures locally.
+- `wirestead_ros` produced 49 test results with no failures locally.
 - An installed downstream consumer found and linked
   `wirestead_ros::wirestead_ros` successfully.
 - The public Jazzy workflow completed successfully in
@@ -55,6 +61,8 @@ to production driver data paths.
 
 ## Not Yet Included
 
+- A pseudo-terminal lifecycle and I/O test for `serial_line_driver`. It is
+  compiled by CI, so it cannot rot, but its transitions are not yet exercised.
 - Merge of the core draft pull request.
 - A core release newer than v0.9.3 containing `package.xml`.
 - Immutable core tag selection in `wirestead_ros.repos`.
