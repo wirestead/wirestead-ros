@@ -8,6 +8,9 @@ find_package(ament_cmake REQUIRED)
 find_package(wirestead CONFIG REQUIRED)
 find_package(diagnostic_msgs REQUIRED)
 find_package(diagnostic_updater REQUIRED)
+find_package(rclcpp REQUIRED)
+find_package(rclcpp_lifecycle REQUIRED)
+find_package(sensor_msgs REQUIRED)
 
 add_library(${PROJECT_NAME} SHARED src/callback_gate.cpp src/diagnostics.cpp)
 add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
@@ -26,6 +29,20 @@ target_link_libraries(
     diagnostic_updater::diagnostic_updater
 )
 target_compile_definitions(${PROJECT_NAME} PRIVATE WIRESTEAD_ROS_BUILDING_LIBRARY)
+
+# Reference driver for third-party authors. Built so it cannot rot, installed
+# so it can actually be run against a device.
+add_executable(serial_line_driver examples/serial_line_driver.cpp)
+target_link_libraries(
+  serial_line_driver
+  PRIVATE
+    ${PROJECT_NAME}
+    ${rclcpp_TARGETS}
+    ${rclcpp_lifecycle_TARGETS}
+    ${sensor_msgs_TARGETS}
+)
+
+install(TARGETS serial_line_driver DESTINATION lib/${PROJECT_NAME})
 
 install(
   DIRECTORY include/
