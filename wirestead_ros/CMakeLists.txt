@@ -67,6 +67,18 @@ if(BUILD_TESTING)
 
   ament_add_gtest(test_diagnostics test/test_diagnostics.cpp)
   target_link_libraries(test_diagnostics ${PROJECT_NAME})
+
+  # Drives the reference driver over a pseudo-terminal. util carries openpty().
+  ament_add_gtest(test_serial_line_driver test/test_serial_line_driver.cpp)
+  target_include_directories(test_serial_line_driver PRIVATE examples)
+  target_link_libraries(
+    test_serial_line_driver
+    ${PROJECT_NAME}
+    ${rclcpp_TARGETS}
+    ${rclcpp_lifecycle_TARGETS}
+    ${sensor_msgs_TARGETS}
+    util
+  )
 endif()
 
 ament_export_targets(export_${PROJECT_NAME} HAS_LIBRARY_TARGET)
