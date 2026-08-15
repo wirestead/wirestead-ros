@@ -22,7 +22,11 @@ Status as of 2026-08-09.
   `diagnostic_updater` status. The level reflects only present state -
   disconnected is ERROR, active backpressure is WARN - because the drop and
   failure counters are cumulative and would otherwise latch a warning for the
-  rest of the run over a single old drop.
+  rest of the run over a single old drop. Extended 2026-08-15 with an optional
+  `stale_after`: a link that is Connected but has stopped receiving reports
+  STALE, which is the failure every other field reports as healthy. The
+  threshold is a parameter because only the integrator knows their device's
+  slowest interval.
 - Added `serial_line_driver`, the reference driver for third-party authors: a
   lifecycle node that parses a line protocol on the callback-scoped view,
   stamps from `MessageContext::received_at()`, orders shutdown through
@@ -46,7 +50,7 @@ Status as of 2026-08-09.
 - Wirestead core Linux, macOS, and Windows builds passed.
 - Core unit, integration, end-to-end, memory-safety, formatting, install and
   consume, and CodeQL checks passed on pull request 586.
-- `wirestead_ros` produced 62 test results with no failures locally.
+- `wirestead_ros` produced 68 test results with no failures locally.
 - An installed downstream consumer found and linked
   `wirestead_ros::wirestead_ros` successfully.
 - The public Jazzy workflow completed successfully in

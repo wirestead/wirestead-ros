@@ -14,6 +14,9 @@
 
 #pragma once
 
+#include <chrono>
+#include <optional>
+
 #include <diagnostic_updater/diagnostic_updater.hpp>
 
 #include "wirestead/wrapper/runtime_stats.hpp"
@@ -30,8 +33,16 @@ namespace wirestead_ros
 /// The level comes only from state that is true *now*:
 ///
 /// - not connected             -> ERROR
+/// - silent beyond stale_after -> STALE
 /// - connected, backpressured  -> WARN
 /// - connected                 -> OK
+///
+/// `stale_after` is the one piece this function cannot work out for itself:
+/// how long a gap is too long depends entirely on the device. Pass the slowest
+/// interval that device is expected to hit, with margin, and a link that has
+/// gone quiet reports STALE while still reporting Connected - which is exactly
+/// the failure that otherwise looks healthy on every other field. Leave it
+/// unset and silence is reported as a value but never changes the level.
 ///
 /// `dropped_messages`, `dropped_bytes`, `failed_sends` and `backpressure_events`
 /// deliberately do not raise the level. They are cumulative since the channel
@@ -44,13 +55,15 @@ namespace wirestead_ros
 ///
 /// ```cpp
 /// updater.add("link", [this](diagnostic_updater::DiagnosticStatusWrapper & s) {
-///   wirestead_ros::report_channel_stats(s, channel_->stats(), channel_->connected());
+///   wirestead_ros::report_channel_stats(
+///     s, channel_->stats(), channel_->connected(), std::chrono::milliseconds(500));
 /// });
 /// ```
 WIRESTEAD_ROS_PUBLIC
 void report_channel_stats(
   diagnostic_updater::DiagnosticStatusWrapper & status,
   const wirestead::wrapper::RuntimeStats & stats,
-  bool connected);
+  bool connected,
+  std::optional<std::chrono::milliseconds> stale_after = std::nullopt);
 
 }  // namespace wirestead_ros
