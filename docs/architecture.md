@@ -34,6 +34,23 @@ Recommended deactivation order:
 Do not call `CallbackGate::close_and_wait()` from a callback holding a lease
 from the same gate.
 
+## Diagnostics
+
+A driver should report its link through `report_channel_stats()` rather than
+inventing a parallel status system. It maps every `RuntimeStats` field onto a
+`diagnostic_updater` status and derives the level from state that is true now:
+disconnected is `ERROR`, silent beyond the caller's threshold is `STALE`,
+active backpressure is `WARN`.
+
+The staleness threshold is the caller's to supply. How long a gap is too long
+depends on the device, and a silent sensor is the failure every other field
+reports as healthy - the link stays `Connected` because nothing went wrong, the
+data simply stopped.
+
+Cumulative counters - dropped messages, failed sends - deliberately do not
+raise the level, or one drop an hour ago would latch a warning for the rest of
+the run.
+
 ## Generic bridge
 
 The future `wirestead_bridge` package is optional. It will publish raw frames
