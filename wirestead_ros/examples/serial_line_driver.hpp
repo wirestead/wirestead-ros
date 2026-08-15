@@ -32,12 +32,14 @@
 //      clock at publish time, so queueing and parsing do not leak into the
 //      timestamp.
 //   4. The link's counters are published on /diagnostics through the same
-//      helper every driver should use.
+//      helper every driver should use, including the staleness check that
+//      catches a device which stops talking without erroring.
 
 #pragma once
 
 #include <chrono>
 #include <memory>
+#include <optional>
 #include <string>
 
 #include <diagnostic_updater/diagnostic_updater.hpp>
@@ -65,11 +67,19 @@ public:
     declare_parameter<std::string>("device", "/dev/ttyUSB0");
     declare_parameter<int>("baud_rate", 115200);
     declare_parameter<std::string>("frame_id", "sensor_link");
+    // How long a gap makes the link stale. Only the integrator knows their
+    // device's slowest interval, which is why this is a parameter and not a
+    // constant. 0 disables the check.
+    declare_parameter<int>("stale_after_ms", 1000);
   }
 
   CallbackReturn on_configure(const rclcpp_lifecycle::State &) override
   {
     frame_id_ = get_parameter("frame_id").as_string();
+    const auto stale_ms = get_parameter("stale_after_ms").as_int();
+    stale_after_ = stale_ms >
+      0 ? std::optional<std::chrono::milliseconds>(std::chrono::milliseconds(stale_ms)) :
+      std::nullopt;
     const auto device = get_parameter("device").as_string();
     const auto baud = static_cast<uint32_t>(get_parameter("baud_rate").as_int());
 
@@ -86,7 +96,10 @@ public:
           status.summary(diagnostic_msgs::msg::DiagnosticStatus::STALE, "not configured");
           return;
         }
-        wirestead_ros::report_channel_stats(status, channel_->stats(), channel_->connected());
+        // A device that stops mid-run keeps every counter healthy and the link
+        // Connected; without the age it reports OK forever.
+        wirestead_ros::report_channel_stats(
+          status, channel_->stats(), channel_->connected(), stale_after_);
       });
 
     channel_ = wirestead::builder::SerialBuilder(device, baud)
@@ -178,6 +191,7 @@ private:
   }
 
   std::string frame_id_;
+  std::optional<std::chrono::milliseconds> stale_after_;
   wirestead_ros::CallbackGate gate_;
   std::unique_ptr<wirestead::wrapper::Serial> channel_;
   rclcpp_lifecycle::LifecyclePublisher<sensor_msgs::msg::Temperature>::SharedPtr publisher_;
