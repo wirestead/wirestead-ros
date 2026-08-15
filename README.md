@@ -13,12 +13,25 @@ optional so production drivers do not pay for an unnecessary DDS hop.
 
 | Package | Status | Purpose |
 | --- | --- | --- |
-| `wirestead_ros` | Initial | Driver integration library and lifecycle-safe callback utilities |
+| `wirestead_ros` | Initial | Driver integration library: lifecycle-safe callback utilities, `/diagnostics` mapping, and a reference driver |
 | `wirestead_msgs` | Planned | Interfaces for the optional generic bridge |
 | `wirestead_bridge` | Planned | Serial, TCP, UDP, and UDS bridge nodes |
 
 Wirestead core is expected to be released separately as the ROS package
 `wirestead`, producing the Debian package `ros-<distro>-wirestead`.
+
+### What `wirestead_ros` provides today
+
+- `CallbackGate` - admits and drains transport callbacks so none outlives the
+  ROS objects it publishes through.
+- `report_channel_stats()` - maps a channel's `RuntimeStats` onto
+  `diagnostic_updater`, including a `STALE` level for a link that is connected
+  but has stopped receiving.
+- `serial_line_driver` - the reference driver for third-party authors: a
+  lifecycle node that parses on the callback-scoped view, stamps from the
+  payload's arrival time, orders shutdown through `CallbackGate`, and publishes
+  a semantic `sensor_msgs/Temperature` rather than raw bytes. Its lifecycle and
+  I/O are covered by a pseudo-terminal test.
 
 ## Source workspace
 
