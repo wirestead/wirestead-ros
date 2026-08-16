@@ -71,11 +71,13 @@ work are tracked in [Implementation Status](docs/implementation_status.md).
 
 ## Supported ROS distributions
 
-- ROS 2 Jazzy on Ubuntu 24.04 is the initial development target.
+- ROS 2 Jazzy on Ubuntu 24.04 is the primary target and the required CI row.
+- ROS 2 Humble on Ubuntu 22.04 builds and tests green in CI. Wirestead lowered
+  its Boost minimum to 1.74, which is what Ubuntu 22.04 supplies, so the
+  dependency that used to rule Humble out is gone. The row is still marked
+  experimental until it has been stable for a while.
 - ROS 2 Lyrical support requires a separate Ubuntu 26.04 CI result before
   release.
-- ROS 2 Humble is not currently targeted because its system Boost version is
-  below Wirestead's minimum requirement.
 
 ## License
 

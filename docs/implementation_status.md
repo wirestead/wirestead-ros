@@ -40,7 +40,8 @@ Status as of 2026-08-09.
   clean. The node moved into `serial_line_driver.hpp` so the test can drive its
   transitions directly.
 - Added installable CMake targets, package exports, tests, source-workspace
-  metadata, and Jazzy CI.
+  metadata, and CI. CI covers Jazzy on Ubuntu 24.04 and, since Wirestead's Boost
+  minimum dropped to 1.74, Humble on Ubuntu 22.04 as an experimental row.
 - Published the initial implementation to the `wirestead-ros` `main` branch.
 - Made the development CI build and install Wirestead core `main` before the
   ROS package. The unresolved `wirestead` rosdep key is skipped temporarily.
@@ -55,6 +56,11 @@ Status as of 2026-08-09.
   `wirestead_ros::wirestead_ros` successfully.
 - The public Jazzy workflow completed successfully in
   [wirestead-ros Actions run 31307946464](https://github.com/wirestead/wirestead-ros/actions/runs/31307946464).
+- Humble was added to the same workflow on 2026-08-16 and passed: the core
+  builds against Ubuntu 22.04's Boost 1.74, `wirestead_ros` builds against it,
+  and every functional test passes. Only `uncrustify` differs, because Humble's
+  version wants different line wrapping than Jazzy's, so it is excluded on that
+  row rather than reformatting the source away from the primary target.
 
 ## Current Source-Workspace Use
 
