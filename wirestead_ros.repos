@@ -2,4 +2,4 @@ repositories:
   wirestead:
     type: git
     url: https://github.com/wirestead/wirestead.git
-    version: v0.9.4
+    version: v0.9.5
