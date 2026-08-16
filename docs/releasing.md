@@ -15,23 +15,22 @@ ros-jazzy-wirestead-ros
 `wirestead_msgs` and `wirestead_bridge` will be added only after their public
 interfaces are implemented and tested.
 
-## Current v0.9.3 phase
+## Current v0.9.4 phase
 
-Wirestead v0.9.3 was released before the core ROS manifest was added. Keep that
-tag immutable and do not create another source snapshot with the same version.
-Development now follows the latest core `main`. For now:
+Core v0.9.4, released 2026-08-16, is the first tag to carry the ROS manifest;
+v0.9.3 predates it and stays immutable. `wirestead_ros.repos` now resolves that
+tag rather than core `main`, so a source workspace builds the same core the
+Bloom release will describe.
 
-- source builds install core `main` with plain CMake before building
-  `wirestead_ros`;
-- CI follows the same two-stage build against core `main` and skips the
-  unresolved `wirestead` rosdep key;
-- the core `package.xml` can be merged to the development branch without
-  creating another GitHub release;
-- public binary registration waits for the next naturally scheduled core
-  release containing that manifest.
+CI deliberately stays on core `main`: pinning it too would trade away the
+integration regressions it exists to catch before the next tagged release. The
+two therefore answer different questions, and only the manifest needs to be
+immutable. CI still skips the unresolved `wirestead` rosdep key, which is what
+Bloom registration removes.
 
-This phase supports driver development and source-workspace users. It does not
-produce `ros-jazzy-wirestead` or `ros-jazzy-wirestead-ros` apt packages.
+This phase still does not produce `ros-jazzy-wirestead` or
+`ros-jazzy-wirestead-ros` apt packages. That needs the two release repositories
+and the rosdistro pull requests below.
 
 ## Repository and package names
 

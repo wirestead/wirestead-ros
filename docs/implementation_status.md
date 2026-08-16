@@ -71,13 +71,18 @@ to production driver data paths.
 
 ## Not Yet Included
 
-- Merge of the core draft pull request.
-- A core release newer than v0.9.3 containing `package.xml`.
-- Immutable core tag selection in `wirestead_ros.repos`.
 - Bloom-generated `wirestead-release` and `wirestead-ros-release`
   repositories.
 - Registration in `ros/rosdistro` and ROS build-farm binary packages.
 - Planned `wirestead_msgs` and `wirestead_bridge` packages.
+
+Steps 1 to 3 of the registration order below are done as of 2026-08-16: the
+core manifest pull request merged as
+[wirestead/wirestead#586](https://github.com/wirestead/wirestead/pull/586),
+core v0.9.4 is the first release to carry `package.xml`, and
+`wirestead_ros.repos` now resolves that immutable tag rather than core `main`.
+CI stays on core `main` on purpose, to keep catching integration regressions
+between releases. What remains is Bloom and the rosdistro registration.
 
 ## Registration Order
 
