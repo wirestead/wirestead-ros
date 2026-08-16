@@ -87,7 +87,8 @@ to production driver data paths.
 Steps 1 to 3 of the registration order below are done as of 2026-08-16: the
 core manifest pull request merged as
 [wirestead/wirestead#586](https://github.com/wirestead/wirestead/pull/586),
-core v0.9.4 is the first release to carry `package.xml`, and
+core v0.9.4 was the first release to carry `package.xml` and v0.9.5 the first
+one a build farm can actually build, and
 `wirestead_ros.repos` now resolves that immutable tag rather than core `main`.
 CI stays on core `main` on purpose, to keep catching integration regressions
 between releases. What remains is the rosdistro entries, the `ros2-gbp` release repositories,
