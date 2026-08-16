@@ -9,8 +9,33 @@ permissions:
   contents: read
 
 jobs:
-  jazzy:
-    runs-on: ubuntu-latest
+  build:
+    # Humble is the reason wirestead#617 lowered the core's Boost minimum to
+    # 1.74: Ubuntu 22.04's system Boost is 1.74, and the old 1.83 floor was the
+    # only thing keeping the core off that platform. Building here is what turns
+    # "should work" into a claim worth making, so the row stays experimental
+    # until it has been green for a while.
+    name: ${{ matrix.distro }}
+    runs-on: ${{ matrix.runner }}
+    continue-on-error: ${{ matrix.experimental }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - distro: jazzy
+            runner: ubuntu-24.04
+            experimental: false
+            test_args: ""
+          - distro: humble
+            runner: ubuntu-22.04
+            experimental: true
+            # Humble's uncrustify wants different line wrapping than Jazzy's -
+            # it breaks updater_->add("serial link", [this](...)) across two
+            # lines, for one. The source is formatted for Jazzy, the primary
+            # target, and reformatting to satisfy the older tool would just move
+            # the failure to the other row. Every other test passes here, so the
+            # style linter is excluded rather than allowed to hide that.
+            test_args: "--ctest-args -E uncrustify"
     steps:
       - name: Check out Wirestead ROS
         uses: actions/checkout@v7
@@ -22,10 +47,10 @@ jobs:
           ref: main
           path: _deps/wirestead
 
-      - name: Set up ROS 2 Jazzy
+      - name: Set up ROS 2
         uses: ros-tooling/setup-ros@v0.7
         with:
-          required-ros-distributions: jazzy
+          required-ros-distributions: ${{ matrix.distro }}
 
       - name: Install Wirestead dependencies
         run: |
@@ -45,18 +70,18 @@ jobs:
       - name: Install ROS dependencies
         shell: bash
         run: |
-          source /opt/ros/jazzy/setup.bash
+          source /opt/ros/${{ matrix.distro }}/setup.bash
           if [[ ! -f /etc/ros/rosdep/sources.list.d/20-default.list ]]; then
             sudo rosdep init
           fi
-          rosdep update --rosdistro jazzy
+          rosdep update --rosdistro ${{ matrix.distro }}
           rosdep install --from-paths wirestead_ros --ignore-src \
-            --rosdistro jazzy --skip-keys wirestead -r -y
+            --rosdistro ${{ matrix.distro }} --skip-keys wirestead -r -y
 
       - name: Build Wirestead ROS
         shell: bash
         run: |
-          source /opt/ros/jazzy/setup.bash
+          source /opt/ros/${{ matrix.distro }}/setup.bash
           export CMAKE_PREFIX_PATH="${RUNNER_TEMP}/wirestead-install:${CMAKE_PREFIX_PATH}"
           colcon --log-base "${RUNNER_TEMP}/log" build \
             --base-paths wirestead_ros \
@@ -67,11 +92,11 @@ jobs:
       - name: Test Wirestead ROS
         shell: bash
         run: |
-          source /opt/ros/jazzy/setup.bash
+          source /opt/ros/${{ matrix.distro }}/setup.bash
           export CMAKE_PREFIX_PATH="${RUNNER_TEMP}/wirestead-install:${CMAKE_PREFIX_PATH}"
           colcon --log-base "${RUNNER_TEMP}/log" test \
             --base-paths wirestead_ros \
             --build-base "${RUNNER_TEMP}/ros-build" \
             --install-base "${RUNNER_TEMP}/ros-install" \
-            --event-handlers console_direct+
+            --event-handlers console_direct+ ${{ matrix.test_args }}
           colcon test-result --test-result-base "${RUNNER_TEMP}/ros-build" --verbose
