@@ -36,8 +36,9 @@ Wirestead core is expected to be released separately as the ROS package
 ## Source workspace
 
 Until the core package is available from the ROS package repository, install
-Wirestead core from its current development branch with plain CMake and then
-build the ROS package. The development manifest tracks core `main` so CI catches
+Wirestead core with plain CMake and then build the ROS package. The manifest
+resolves the released core tag, so a source workspace builds what the ROS
+release describes; CI separately tracks core `main`, which is what catches
 integration regressions before the next tagged release.
 
 ```bash
