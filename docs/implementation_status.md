@@ -41,7 +41,7 @@ Status as of 2026-08-09.
   transitions directly.
 - Added installable CMake targets, package exports, tests, source-workspace
   metadata, and CI. CI covers Jazzy on Ubuntu 24.04 and, since Wirestead's Boost
-  minimum dropped to 1.74, Humble on Ubuntu 22.04 as an experimental row.
+  minimum dropped to 1.74, Humble on Ubuntu 22.04. Both rows are required.
 - Published the initial implementation to the `wirestead-ros` `main` branch.
 - Made the development CI build and install Wirestead core `main` before the
   ROS package. The unresolved `wirestead` rosdep key is skipped temporarily.
