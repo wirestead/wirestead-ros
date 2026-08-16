@@ -25,9 +25,17 @@ jobs:
           - distro: jazzy
             runner: ubuntu-24.04
             experimental: false
+            test_args: ""
           - distro: humble
             runner: ubuntu-22.04
             experimental: true
+            # Humble's uncrustify wants different line wrapping than Jazzy's -
+            # it breaks updater_->add("serial link", [this](...)) across two
+            # lines, for one. The source is formatted for Jazzy, the primary
+            # target, and reformatting to satisfy the older tool would just move
+            # the failure to the other row. Every other test passes here, so the
+            # style linter is excluded rather than allowed to hide that.
+            test_args: "--ctest-args -E uncrustify"
     steps:
       - name: Check out Wirestead ROS
         uses: actions/checkout@v7
@@ -90,5 +98,5 @@ jobs:
             --base-paths wirestead_ros \
             --build-base "${RUNNER_TEMP}/ros-build" \
             --install-base "${RUNNER_TEMP}/ros-install" \
-            --event-handlers console_direct+
+            --event-handlers console_direct+ ${{ matrix.test_args }}
           colcon test-result --test-result-base "${RUNNER_TEMP}/ros-build" --verbose
