@@ -12,23 +12,22 @@ jobs:
   build:
     # Humble is the reason wirestead#617 lowered the core's Boost minimum to
     # 1.74: Ubuntu 22.04's system Boost is 1.74, and the old 1.83 floor was the
-    # only thing keeping the core off that platform. Building here is what turns
-    # "should work" into a claim worth making, so the row stays experimental
-    # until it has been green for a while.
+    # only thing keeping the core off that platform. It went green on
+    # 2026-08-16 and is required rather than advisory, because ros/rosdistro now
+    # carries a Humble source entry for both packages - a claim this job is what
+    # defends. An advisory row that is green cannot tell a regression from a
+    # pass.
     name: ${{ matrix.distro }}
     runs-on: ${{ matrix.runner }}
-    continue-on-error: ${{ matrix.experimental }}
     strategy:
       fail-fast: false
       matrix:
         include:
           - distro: jazzy
             runner: ubuntu-24.04
-            experimental: false
             test_args: ""
           - distro: humble
             runner: ubuntu-22.04
-            experimental: true
             # Humble's uncrustify wants different line wrapping than Jazzy's -
             # it breaks updater_->add("serial link", [this](...)) across two
             # lines, for one. The source is formatted for Jazzy, the primary
