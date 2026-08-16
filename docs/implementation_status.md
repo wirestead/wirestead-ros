@@ -71,9 +71,11 @@ to production driver data paths.
 
 ## Not Yet Included
 
-- Bloom-generated `wirestead-release` and `wirestead-ros-release`
-  repositories.
-- Registration in `ros/rosdistro` and ROS build-farm binary packages.
+- rosdistro source entries for `wirestead` and `wirestead_ros`, which are the
+  REP-144 naming review and the prerequisite the next item links to.
+- `ros2-gbp/wirestead-release` and `ros2-gbp/wirestead-ros-release`, requested
+  from the `ros2-gbp` organization rather than created here.
+- Bloom registration and ROS build-farm binary packages.
 - Planned `wirestead_msgs` and `wirestead_bridge` packages.
 
 Steps 1 to 3 of the registration order below are done as of 2026-08-16: the
@@ -82,7 +84,8 @@ core manifest pull request merged as
 core v0.9.4 is the first release to carry `package.xml`, and
 `wirestead_ros.repos` now resolves that immutable tag rather than core `main`.
 CI stays on core `main` on purpose, to keep catching integration regressions
-between releases. What remains is Bloom and the rosdistro registration.
+between releases. What remains is the rosdistro entries, the `ros2-gbp` release repositories,
+and Bloom.
 
 ## Registration Order
 
@@ -91,9 +94,12 @@ between releases. What remains is Bloom and the rosdistro registration.
    do not recreate or modify v0.9.3.
 3. Pin `wirestead_ros.repos` to that immutable core tag and repeat clean Jazzy
    source and installed-consumer validation.
-4. Release the core package `wirestead` with Bloom and verify
+4. Add rosdistro `source` entries for both repositories - the REP-144 naming
+   review, and the link the next step requires.
+5. Request the release team and the two `ros2-gbp` release repositories.
+6. Release the core package `wirestead` with Bloom and verify
    `ros-jazzy-wirestead` in `ros-testing`.
-5. Release the integration package `wirestead_ros` and verify
+7. Release the integration package `wirestead_ros` and verify
    `ros-jazzy-wirestead-ros` in `ros-testing`.
 
 The complete Bloom commands, repository names, and naming rationale are in
