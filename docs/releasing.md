@@ -15,15 +15,23 @@ ros-jazzy-wirestead-ros
 `wirestead_msgs` and `wirestead_bridge` will be added only after their public
 interfaces are implemented and tested.
 
-## Current v0.9.5 phase
+## Current v0.9.6 phase
 
 Core v0.9.4 was the first tag to carry the ROS manifest, but it cannot be
 released: it predates both the Boost minimum dropping to 1.74 and
 `WIRESTEAD_BUILD_TESTS` defaulting to OFF, so a build farm - which builds
 offline, and on Ubuntu 22.04 has Boost 1.74 - fails on both counts before
-compiling anything. **v0.9.5 is the first releasable tag**, and
-`wirestead_ros.repos` resolves it, so a source workspace builds the same core
-the Bloom release will describe.
+compiling anything. v0.9.5 fixed that and is the first tag a build farm can
+build.
+
+**v0.9.6 is the first tag whose Debian is correct once built**, which is a
+different claim. v0.9.5 does not install `package.xml`, so the package it
+produces is invisible to `ros2 pkg list` and the ament index, and it declares
+`libboost-all-dev` as a runtime dependency because `<depend>boost</depend>`
+covers exec as well as build - 383 MB of `-dev` packages on every installation,
+for a library whose `libwirestead.so` has no Boost `NEEDED` entry at all.
+`wirestead_ros.repos` resolves v0.9.6, so a source workspace builds the same
+core the Bloom release will describe.
 
 CI deliberately stays on core `main`: pinning it too would trade away the
 integration regressions it exists to catch before the next tagged release. The
