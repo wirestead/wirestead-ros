@@ -5,11 +5,11 @@ The public release has two ordered repositories:
 1. Release Wirestead core as ROS package `wirestead`.
 2. Release this repository after `wirestead` resolves through rosdep.
 
-Expected Jazzy Debian packages:
+Expected Debian packages, for Jazzy and Humble:
 
 ```text
-ros-jazzy-wirestead
-ros-jazzy-wirestead-ros
+ros-jazzy-wirestead      ros-humble-wirestead
+ros-jazzy-wirestead-ros  ros-humble-wirestead-ros
 ```
 
 `wirestead_msgs` and `wirestead_bridge` will be added only after their public
@@ -26,7 +26,7 @@ build.
 
 **v0.9.6 is the first tag whose Debian is correct once built**, which is a
 different claim. v0.9.5 does not install `package.xml`, so the package it
-produces is invisible to `ros2 pkg list` and the ament index, and it declares
+produces carries no manifest at all, and it declares
 `libboost-all-dev` as a runtime dependency because `<depend>boost</depend>`
 covers exec as well as build - 383 MB of `-dev` packages on every installation,
 for a library whose `libwirestead.so` has no Boost `NEEDED` entry at all.
@@ -39,9 +39,10 @@ two therefore answer different questions, and only the manifest needs to be
 immutable. CI still skips the unresolved `wirestead` rosdep key, which is what
 Bloom registration removes.
 
-This phase still does not produce `ros-jazzy-wirestead` or
-`ros-jazzy-wirestead-ros` apt packages. That needs the rosdistro entries, the
-`ros2-gbp` release repositories, and Bloom - in that order, as set out below.
+Steps 1 and 2 below are done and the core has been bloomed for both
+distributions: ros/rosdistro#54045 (Jazzy) and ros/rosdistro#54046 (Humble) add
+its `release` entries. `wirestead_ros` 0.1.0 is tagged and waits for the core to
+reach `ros-testing`.
 
 ## Repository and package names
 
@@ -52,7 +53,7 @@ This phase still does not produce `ros-jazzy-wirestead` or
 | Core release repository | `ros2-gbp/wirestead-release` |
 | Integration source repository | `wirestead/wirestead-ros` |
 | Integration ROS package | `wirestead_ros` |
-| Integration release repository | `ros2-gbp/wirestead-ros-release` |
+| Integration release repository | `ros2-gbp/wirestead_ros-release` |
 | rosdistro repository keys | `wirestead`, `wirestead_ros` |
 
 Hyphens are appropriate for Git repository names. ROS package names use lower
@@ -97,7 +98,7 @@ issue on
 Its template requires, per repository, a link to the rosdistro source entry
 from step 1, and it lists team members against the maintainer tag in each
 `package.xml`. An administrator then creates `ros2-gbp/wirestead-release` and
-`ros2-gbp/wirestead-ros-release` and grants the team write access.
+`ros2-gbp/wirestead_ros-release` and grants the team write access.
 
 Do not create these repositories here instead. Third-party projects are hosted
 in `ros2-gbp` as a matter of course - PlotJuggler's three packages are released
@@ -106,24 +107,59 @@ from `ros2-gbp/plotjuggler-release`, `ros2-gbp/plotjuggler_msgs-release` and
 `facontidavide/` and `PlotJuggler/`, and the self-hosted release repository
 they started with has been dormant since it moved.
 
-**3. Bloom.** Only once the release repository exists and the team has access:
+**3. Bloom.** Only once the release repository exists and the team has access.
+The team grant is an organization invitation: accept it at
+<https://github.com/orgs/ros2-gbp/invitation> first, or every push is a 403.
+
+One-time setup on the releasing machine:
 
 ```bash
 sudo apt install python3-bloom python3-catkin-pkg
-bloom-release --new-track --rosdistro jazzy --track jazzy wirestead
+sudo rosdep init && rosdep update   # bloom's Debian step fails without it
+gh auth refresh -h github.com -s workflow
 ```
 
-`bloom-release` is interactive: it asks for the release repository URL and the
-track settings before it pushes anything. Bloom then opens the rosdistro pull
-request that adds the `release` entry. After it is merged, confirm that the
-core build farm jobs succeed and that `ros-jazzy-wirestead` reaches
-`ros-testing`. Only then release this repository:
+The upstream trees contain `.github/workflows/`, and GitHub refuses to push
+workflow files with a token that lacks the `workflow` scope. When bloom first
+opens a pull request it asks for a token; `gh auth token` is sufficient.
+
+Release the core for each distribution:
 
 ```bash
-bloom-release --new-track --rosdistro jazzy --track jazzy wirestead_ros
+bloom-release --new-track --rosdistro jazzy  --track jazzy  wirestead
+bloom-release --new-track --rosdistro humble --track humble wirestead
 ```
 
-After the generated rosdistro pull request is merged, monitor the ROS build
+`bloom-release` is interactive. Answer as follows; anything not listed takes
+the default.
+
+| Prompt | `wirestead` | `wirestead_ros` |
+| --- | --- | --- |
+| Release repository url | `https://github.com/ros2-gbp/wirestead-release.git` | `https://github.com/ros2-gbp/wirestead_ros-release.git` |
+| Repository Name | `wirestead` | `wirestead_ros` |
+| Upstream Repository URI | `https://github.com/wirestead/wirestead.git` | `https://github.com/wirestead/wirestead-ros.git` |
+| Version | `:{auto}` | `:{auto}` |
+| Release Tag | **`v:{version}`** | `:{version}` |
+| Upstream Devel Branch | `main` | `main` |
+| Add documentation information? | **`n`** | **`n`** |
+
+The core tags as `v0.9.6` while this repository tags as `0.1.0`, so only the
+core overrides the tag template; the default makes bloom look for a `0.9.6` tag
+that does not exist. Answer `n` to documentation: neither repository has a
+`rosdoc2.yaml`, Doxyfile or Sphinx `conf.py`, so a doc job would have nothing
+to build.
+
+Bloom then opens one rosdistro pull request per distribution, from a fork under
+the releaser's own account, adding the `release` entry. After it is merged,
+confirm that the core build farm jobs succeed and that `ros-jazzy-wirestead`
+reaches `ros-testing`. Only then release this repository:
+
+```bash
+bloom-release --new-track --rosdistro jazzy  --track jazzy  wirestead_ros
+bloom-release --new-track --rosdistro humble --track humble wirestead_ros
+```
+
+After the generated rosdistro pull requests are merged, monitor the ROS build
 farm and test packages from `ros-testing` before the next distribution sync.
 
 ```bash
@@ -131,4 +167,5 @@ sudo apt install ros-jazzy-wirestead ros-jazzy-wirestead-ros
 ```
 
 For later versions, update the changelog and package version, tag the source,
-and run `bloom-release` again without `--new-track`.
+and run `bloom-release` again without `--new-track`; the track answers are
+stored in the release repository.
