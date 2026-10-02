@@ -90,7 +90,7 @@ core manifest pull request merged as
 core v0.9.4 was the first release to carry `package.xml`, v0.9.5 the first one
 a build farm can actually build, and v0.9.6 the first one whose Debian is
 discoverable and does not drag `libboost-all-dev` into its runtime
-dependencies. `wirestead_ros.repos` resolves v0.9.6 rather than core `main`.
+dependencies. `wirestead_ros.repos` resolves v0.10.0 rather than core `main`.
 CI stays on core `main` on purpose, to keep catching integration regressions
 between releases. What remains is the rosdistro entries, the `ros2-gbp` release repositories,
 and Bloom.
