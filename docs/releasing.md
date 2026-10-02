@@ -15,7 +15,7 @@ ros-jazzy-wirestead-ros  ros-humble-wirestead-ros
 `wirestead_msgs` and `wirestead_bridge` will be added only after their public
 interfaces are implemented and tested.
 
-## Current v0.9.6 phase
+## Which core tag a release needs
 
 Core v0.9.4 was the first tag to carry the ROS manifest, but it cannot be
 released: it predates both the Boost minimum dropping to 1.74 and
@@ -30,7 +30,7 @@ produces carries no manifest at all, and it declares
 `libboost-all-dev` as a runtime dependency because `<depend>boost</depend>`
 covers exec as well as build - 383 MB of `-dev` packages on every installation,
 for a library whose `libwirestead.so` has no Boost `NEEDED` entry at all.
-`wirestead_ros.repos` resolves v0.9.6, so a source workspace builds the same
+`wirestead_ros.repos` resolves v0.10.0, so a source workspace builds the same
 core the Bloom release will describe.
 
 CI deliberately stays on core `main`: pinning it too would trade away the
