@@ -30,7 +30,7 @@ produces carries no manifest at all, and it declares
 `libboost-all-dev` as a runtime dependency because `<depend>boost</depend>`
 covers exec as well as build - 383 MB of `-dev` packages on every installation,
 for a library whose `libwirestead.so` has no Boost `NEEDED` entry at all.
-`wirestead_ros.repos` resolves v0.10.0, so a source workspace builds the same
+`wirestead_ros.repos` resolves v0.10.1, so a source workspace builds the same
 core the Bloom release will describe.
 
 CI deliberately stays on core `main`: pinning it too would trade away the
